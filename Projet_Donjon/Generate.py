@@ -104,7 +104,7 @@ def Generate(Donjon,nbr_escalier):
 
         edges = Util.convert_to_tuples(edges)
         tree = Spanning_tree.minimum_spanning_tree(edges)
-        random_tree = Spanning_tree.add_random_edges_to_minimum_spanning_tree(tree, edges, points)
+        random_tree = Spanning_tree.add_random_edges_to_minimum_spanning_tree(tree, edges, salles_etage)
 
         path_result = []
         # Ici on définie les coordonées de départ et de fin, on tente de connecter les salles entre elle en utilisant des connecteurs disponible, sinon on utilise des connecteurs déja utilisé
