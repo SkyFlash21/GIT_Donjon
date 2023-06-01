@@ -132,4 +132,4 @@ def Generate(Donjon,nbr_escalier):
                 Donjon.matrices[path[0]] = 4
                 Donjon.matrices[path[1]] = 4
     print(PathFinding.find_disconnected_points(Donjon.matrices))
-    return Donjon.matrices
+    return Donjon
