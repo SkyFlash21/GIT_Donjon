@@ -20,26 +20,30 @@ def Generate(Donjon,nbr_escalier):
         stage_escalier = nbr_escalier
 
         # Placement des salles dans la matrices
-        for i in range(random.randint(Donjon.Nombre_de_Salle[0],Donjon.Nombre_de_Salle[1])):
-            # On fait 50 tentative de placement par salles
-            # On sélectionne une salle aléatoirement dans la liste disponible des RoomTypes, on lui applique une rotation et un miror aléatoire avant de tenter de la parse.
+        nombre_de_salle = random.randint(Donjon.Nombre_de_Salle[0],Donjon.Nombre_de_Salle[1])
+        for i in range(nombre_de_salle):
+
             if stage_escalier > 0 and iy != len(Donjon.matrices)-1:
                 selected_room = random.choice(Donjon.Room_Type[1]).GenerateRoom()
                 stage_escalier-=1
             else:
                 selected_room = random.choice(Donjon.Room_Type[0]).GenerateRoom()
             validation = True
+
             for tentative in range(50):
                 # Définition aléatoire de la position dans l'étage
                 shape = selected_room.matrice.shape
                 x,z = random.randint(0,len(Donjon.matrices[1])-shape[1]),random.randint(0,len(Donjon.matrices[1])-shape[2])
                 
+                # Définition de la position de la salle
                 selected_room.position = (iy,x,z)
+
+                # Définition de la rotation de la salle
                 for j in range(0,selected_room.rotation):
                     for i,stage in enumerate(selected_room.matrice):
                         selected_room.matrice[i] = np.rot90(selected_room.matrice[i], k=1, axes=(1, 0))
                 
-
+                # Définition du fait que la salle soit en miroir ou non
                 if selected_room.miror:
                     for i,stage in enumerate(selected_room.matrice):
                         selected_room.matrice[i] = np.flip(selected_room.matrice[i], axis=1)
@@ -50,7 +54,7 @@ def Generate(Donjon,nbr_escalier):
                         for posz in range(shape[2]):
                             if Donjon.matrices[iy+posy,x+posx,z+posz]+selected_room.matrice[posy,posx,posz] not in [0,1,5]:
                                 validation = False
-                A = Donjon.matrices[iy]
+                                
                 if validation:
                     room = selected_room.GetRoom()
                     Donjon.salle_generer[iy][room["local_position"]] = room
@@ -69,10 +73,10 @@ def Generate(Donjon,nbr_escalier):
         Matrice_connection = {}
 
         # Initialisation des valeurs dans la matrice, on mets en place les salles ainsi que leurs connecteurs
-        points = Donjon.salle_generer[iy]
+        salles_etage = Donjon.salle_generer[iy]
 
         # Pour chaque salle dans cette étage
-        for point in list(points.values()):
+        for point in list(salles_etage.values()):
             Matrice_salle[point["local_position"]] = 1 # On place la salle (coordonée de son orgine) dans la matrice
             result = [] # On crée une liste liste des connecteurs possible pour cette salle
             for i in point["connecteur"]:
@@ -81,7 +85,7 @@ def Generate(Donjon,nbr_escalier):
 
             Matrice_connection[point["local_position"]] = [result,[]] # On ajoute au dictionnaire Matrice_connection une liste avec les connecteurs disponible et ceux déja utilisé pour la salle 
 
-    # Récupération des coordonnées des salles (origine)
+        # Récupération des coordonnées des salles (origine)
         position_salles = np.argwhere(Matrice_salle == 1)
 
         # Triangulation de Delaunay
@@ -128,3 +132,4 @@ def Generate(Donjon,nbr_escalier):
                 Donjon.matrices[path[0]] = 4
                 Donjon.matrices[path[1]] = 4
     print(PathFinding.find_disconnected_points(Donjon.matrices))
+    return Donjon.matrices
