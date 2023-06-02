@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-import os
+import json
 
 def afficher_matrice(matrice):
     # Créer une figure et un axe
@@ -34,7 +34,7 @@ def clean_list(Donjon):
     for etage in Donjon.salle_generer:
         for pos_2d in etage:
             salle = etage[pos_2d]
-            clean_list_salle.append({"filename":salle["filename"],"rotation":salle["rotation"],"mirror":salle["mirror"]})
+            clean_list_salle.append({"filename":salle["filename"],"position":salle["position"],"rotation":salle["rotation"],"mirror":salle["mirror"]})
 
     clean_list_chemin = []
     shape = Donjon.matrices.shape
@@ -60,5 +60,5 @@ def clean_list(Donjon):
                             chemin_code+= "0"
                     for chemin_type in possibilite:
                         if chemin_code in chemin_type:
-                            clean_list_chemin.append({"filename":chemin_code,"rotation":chemin_type.index(chemin_code),"mirror":False})
-    return (clean_list_salle + clean_list_chemin)
+                            clean_list_chemin.append({"filename":chemin_code,"position":[posy,posx,posz],"rotation":chemin_type.index(chemin_code),"mirror":False})
+    return json.dumps(clean_list_salle + clean_list_chemin)

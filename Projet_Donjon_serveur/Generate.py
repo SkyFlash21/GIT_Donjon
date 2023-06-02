@@ -41,7 +41,10 @@ def Generate(Donjon,nbr_escalier):
                 # Définition de la rotation de la salle
                 for j in range(0,selected_room.rotation):
                     for i,stage in enumerate(selected_room.matrice):
+                        print(selected_room.matrice[i])
                         selected_room.matrice[i] = np.rot90(selected_room.matrice[i], k=1, axes=(1, 0))
+                        print(selected_room.matrice[i])
+                        input(selected_room.RoomType.name)
                 
                 # Définition du fait que la salle soit en miroir ou non
                 if selected_room.miror:
