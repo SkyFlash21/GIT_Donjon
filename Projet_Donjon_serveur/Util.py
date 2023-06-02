@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import json
+import numpy as np
 
 def afficher_matrice(matrice):
     # Créer une figure et un axe
@@ -62,3 +63,17 @@ def clean_list(Donjon):
                         if chemin_code in chemin_type:
                             clean_list_chemin.append({"filename":chemin_code,"position":[posy,posx,posz],"rotation":chemin_type.index(chemin_code),"mirror":False})
     return json.dumps(clean_list_salle + clean_list_chemin)
+
+def rotation_matrice(matrice):
+    lignes = len(matrice)
+    colonnes = len(matrice[0])
+
+    # Créer un nouvel array vide avec les dimensions inversées
+    matrice_rot = np.zeros((colonnes, lignes), dtype=int)
+
+    # Parcourir la matrice d'origine et remplir le nouvel array tourné
+    for i in range(lignes):
+        for j in range(colonnes):
+            matrice_rot[j][lignes - i - 1] = matrice[i][j]
+
+    return matrice_rot

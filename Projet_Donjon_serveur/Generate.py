@@ -33,24 +33,28 @@ def Generate(Donjon,nbr_escalier):
             for tentative in range(50):
                 # Définition aléatoire de la position dans l'étage
                 shape = selected_room.matrice.shape
-                x,z = random.randint(0,len(Donjon.matrices[1])-shape[1]),random.randint(0,len(Donjon.matrices[1])-shape[2])
                 
-                # Définition de la position de la salle
-                selected_room.position = (iy,x,z)
-
                 # Définition de la rotation de la salle
-                for j in range(0,selected_room.rotation):
-                    for i,stage in enumerate(selected_room.matrice):
-                        print(selected_room.matrice[i])
-                        selected_room.matrice[i] = np.rot90(selected_room.matrice[i], k=1, axes=(1, 0))
-                        print(selected_room.matrice[i])
-                        input(selected_room.RoomType.name)
-                
+                if selected_room.rotation != 0:
+                    matrice_rotated = np.zeros((shape[0],shape[2],shape[1]), dtype=int)
+                    for j in range(0,selected_room.rotation):
+                        # Pour chaque étage de la salle
+                        for i,stage in enumerate(selected_room.matrice):
+                            matrice_rotated[i] = Util.rotation_matrice(selected_room.matrice[i])
+                    selected_room.matrice = matrice_rotated
+
+                """ A REFAIRE
                 # Définition du fait que la salle soit en miroir ou non
                 if selected_room.miror:
                     for i,stage in enumerate(selected_room.matrice):
                         selected_room.matrice[i] = np.flip(selected_room.matrice[i], axis=1)
-
+                """
+                
+                # Définition de la position de la salle
+                shape = selected_room.matrice.shape
+                x,z = random.randint(0,len(Donjon.matrices[1])-shape[1]),random.randint(0,len(Donjon.matrices[1])-shape[2])
+                selected_room.position = (iy,x,z)
+                
                 # On vérifie que la salle peux être posé 
                 for posy in range(shape[0]):
                     for posx in range(shape[1]):
