@@ -36,12 +36,18 @@ def Generate(Donjon,nbr_escalier):
                 
                 # Définition de la rotation de la salle
                 if selected_room.rotation != 0:
-                    matrice_rotated = np.zeros((shape[0],shape[2],shape[1]), dtype=int)
-                    for j in range(0,selected_room.rotation):
-                        # Pour chaque étage de la salle
-                        for i,stage in enumerate(selected_room.matrice):
-                            matrice_rotated[i] = Util.rotation_matrice(selected_room.matrice[i])
-                    selected_room.matrice = matrice_rotated
+                    # Pour chaque étage de la salle
+                    matrices_etage = []
+                    for i,stage in enumerate(selected_room.matrice_originale):
+                        matrice_rotated = selected_room.matrice_originale[i]
+                        for j in range(0,selected_room.rotation):
+                            matrice_rotated = Util.rotation_matrice(matrice_rotated)
+                        matrices_etage.append(matrice_rotated)
+
+                    rotated_shape = matrices_etage[0].shape
+                    selected_room.matrice = np.zeros((shape[0],rotated_shape[0],rotated_shape[1]), dtype=int)
+                    for i,etage in enumerate(matrices_etage):
+                        selected_room.matrice[i] = matrices_etage[i]
 
                 """ A REFAIRE
                 # Définition du fait que la salle soit en miroir ou non
@@ -52,16 +58,17 @@ def Generate(Donjon,nbr_escalier):
                 
                 # Définition de la position de la salle
                 shape = selected_room.matrice.shape
-                x,z = random.randint(0,len(Donjon.matrices[1])-shape[1]),random.randint(0,len(Donjon.matrices[1])-shape[2])
+                x,z = random.randint(0,len(Donjon.matrices[1])-shape[1]-1),random.randint(0,len(Donjon.matrices[1])-shape[2]-1)
                 selected_room.position = (iy,x,z)
                 
-                # On vérifie que la salle peux être posé 
+                # On vérifie que la salle peux être posé et également que les connecteurs ne sont pas obstrué
                 for posy in range(shape[0]):
-                    for posx in range(shape[1]):
-                        for posz in range(shape[2]):
-                            if Donjon.matrices[iy+posy,x+posx,z+posz]+selected_room.matrice[posy,posx,posz] not in [0,1,5]:
+                    for posx in range(shape[1]+2):
+                        for posz in range(shape[2]+2):
+                            if Donjon.matrices[iy+posy,x+posx-1,z+posz-1] != 0:
                                 validation = False
-                                
+
+
                 if validation:
                     room = selected_room.GetRoom()
                     Donjon.salle_generer[iy][room["local_position"]] = room
@@ -138,5 +145,6 @@ def Generate(Donjon,nbr_escalier):
             else:
                 Donjon.matrices[path[0]] = 4
                 Donjon.matrices[path[1]] = 4
+        Util.afficher_matrice(Donjon.matrices[iy])
     print(PathFinding.find_disconnected_points(Donjon.matrices))
     return Donjon

@@ -1,5 +1,6 @@
 import heapq
 from Node import *
+import random
 
 # Fonction pour calculer l'heuristique (distance de Manhattan) entre deux points
 def calculate_heuristic(point, end):
@@ -16,10 +17,7 @@ def find_shortest_path(matrix, start, end):
 
     # Vérifier si les points de départ et d'arrivée sont valides
     if not is_valid_point(start, rows, cols) or not is_valid_point(end, rows, cols):
-        return None
-
-    # Vérifier si les points de départ et d'arrivée sont vides
-    if matrix[start[0]][start[1]] != 5 or matrix[end[0]][end[1]] != 5:
+        print("Invalide A")
         return None
 
     # Définir les mouvements possibles (4 directions : haut, bas, gauche, droite)
@@ -45,6 +43,7 @@ def find_shortest_path(matrix, start, end):
             while current_node:
                 path.append((current_node.row, current_node.col))
                 current_node = current_node.parent
+                print(f"Reussite de la recherche entre {start} et {end}")
             return path[::-1]  # Inverser le chemin pour qu'il soit du point de départ au point d'arrivée
 
         # Ajouter le nœud actuel à la liste fermée
@@ -79,33 +78,9 @@ def find_shortest_path(matrix, start, end):
 
                     # Ajouter le nœud voisin à la liste ouverte
                     heapq.heappush(open_list, next_node)
-
+    print(f"Echec de la recherche entre {start} et {end}")
     # Aucun chemin trouvé
     return None
 
-def find_disconnected_points(matrice,valeur_vide = [0]):
-    y_max = len(matrice)
-    x_max = len(matrice[0])
-    z_max = len(matrice[0][0])
-
-    validation = True
-    for y in range(y_max):
-        salle_valid,total_salle = [],0
-        for x in range(x_max):
-            for z in range(z_max):
-                if matrice[y][x][z] not in valeur_vide:
-                    if matrice[y][x][z] == 1:
-                        total_salle += 1
-
-                    neighbors = [(y, x-1, z), (y, x+1, z), (y, x, z-1), (y, x, z+1)]
-
-                    for neighbor in neighbors:
-                        ny, nx, nz = neighbor
-                        if 0 <= ny < y_max and 0 <= nx < x_max and 0 <= nz < z_max:
-                            if matrice[y][x][z] == 1:
-                                salle_valid.append((y,x,z))
-                                break
-        if len(salle_valid) != total_salle:
-            validation = False
-            print([len(salle_valid),total_salle])
-    return validation
+def find_disconnected_points(matrice):
+    pass

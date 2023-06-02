@@ -20,11 +20,12 @@ def loadRequierement():
             command = str('py -m pip' + " " + "" 'install --trusted-host=pypi.org --trusted-host=files.pythonhosted.org --user' + " " + str(makeInstall[i]).replace("\n", ""))
             os.system(command)
 
-Instance = Donjon(Taille_Matrice=(20,20,20),Nombre_de_Salle=(60,100))
+Instance = Donjon(Taille_Matrice=(2,15,15),Nombre_de_Salle=(30,60))
 
 # Ajout des salles au donjon
-Instance.Room_Type[1].append(RoomType("wood_5", "Salle de test",(1,1,2),np.array([[[1, 5, 1], [0, 1, 1], [0, 1, 1], [0, 1, 1]],[[0, 0, 0], [0, 1, 1], [5, 1, 1], [0, 1, 1]]]),filename = None))
-Instance.Room_Type[0].append(RoomType("wood_2", "Salle de test",(1,1,2),np.array([[[5, 0, 5], [1, 1, 1], [0, 1, 0]]]),filename = None))
+Instance.Room_Type[1].append(RoomType("debug_room_2", "Salle de test",(1,1,2),np.array([[[1,0], [1,1], [1,5], [1,1]],[[1,0], [5,1], [1,1], [1,1]]]),filename = None))
+Instance.Room_Type[0].append(RoomType("debug_room_1", "Salle de test",(1,1,2),np.array([[[1,1], [1,5], [1,1]]]),filename = None))
+Instance.Room_Type[0].append(RoomType("debug_room_3", "Salle de test",(1,1,2),np.array([[[1,5,1], [1,1,5], [0,1,1]]]),filename = None))
 Instance = Generate(Instance,1)
-print(clean_list(Instance))
+#print(clean_list(Instance))
 del Instance
