@@ -91,6 +91,6 @@ while True:
                         roomA.failed.append(nearest_connected_room)
                         nearest_connected_room.failed.append(roomA)
             disconnected = Instance.Get_disconnected_room(etage)
-            
+        Util.afficher_matrice(Instance.matrices[etage])   
 
     del Instance
