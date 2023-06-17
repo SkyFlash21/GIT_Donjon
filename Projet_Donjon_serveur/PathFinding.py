@@ -11,13 +11,18 @@ def is_valid_point(point, rows, cols):
     return 0 <= point[0] < rows and 0 <= point[1] < cols
 
 # Fonction de recherche du chemin le plus court
-def find_shortest_path(matrix, start, end):
+def find_shortest_path(matrix, start, end, cost):
+    #remise en 2d
+    y = start[0]
+    matrix = matrix[start[0]]
+    start = (start[1],start[2])
+    end = (end[1],end[2])
+
     rows = len(matrix)
     cols = len(matrix[0])
 
     # Vérifier si les points de départ et d'arrivée sont valides
     if not is_valid_point(start, rows, cols) or not is_valid_point(end, rows, cols):
-        print("Invalide A")
         return None
 
     # Définir les mouvements possibles (4 directions : haut, bas, gauche, droite)
@@ -41,9 +46,8 @@ def find_shortest_path(matrix, start, end):
             # Reconstruire le chemin en remontant les nœuds parents
             path = []
             while current_node:
-                path.append((current_node.row, current_node.col))
+                path.append((y,current_node.row, current_node.col))
                 current_node = current_node.parent
-                print(f"Reussite de la recherche entre {start} et {end}")
             return path[::-1]  # Inverser le chemin pour qu'il soit du point de départ au point d'arrivée
 
         # Ajouter le nœud actuel à la liste fermée
@@ -61,7 +65,8 @@ def find_shortest_path(matrix, start, end):
                     continue
 
                 # Calculer le coût du chemin depuis le point de départ jusqu'au voisin
-                g_cost = current_node.g_cost + 1
+                if matrix[next_row][next_col] in cost:
+                    g_cost = current_node.g_cost + cost[matrix[next_row][next_col]]
 
                 # Vérifier si le voisin est déjà dans la liste ouverte
                 is_in_open_list = False
@@ -78,9 +83,5 @@ def find_shortest_path(matrix, start, end):
 
                     # Ajouter le nœud voisin à la liste ouverte
                     heapq.heappush(open_list, next_node)
-    print(f"Echec de la recherche entre {start} et {end}")
     # Aucun chemin trouvé
     return None
-
-def find_disconnected_points(matrice):
-    pass

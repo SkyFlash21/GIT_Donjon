@@ -2,7 +2,7 @@ from Room import *
 import random
 
 class RoomType:
-    def __init__(self, name, description,taille,matrice,filename = None):
+    def __init__(self, name, description,matrice,filename = None):
         self.name = name
         self.filename = filename
         if filename == None: self.filename = name

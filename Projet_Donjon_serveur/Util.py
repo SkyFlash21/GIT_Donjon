@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import json
 import numpy as np
+import math,random
 
 def afficher_matrice(matrice):
     # Créer une figure et un axe
@@ -63,6 +64,13 @@ def clean_list(Donjon):
                         if chemin_code in chemin_type:
                             clean_list_chemin.append({"filename":chemin_code,"position":[posy,posx,posz],"rotation":chemin_type.index(chemin_code),"mirror":False})
     return json.dumps(clean_list_salle + clean_list_chemin)
+
+def Compare_tuple(Atuple,Btuple):
+    compare = True
+    for i in range(3):
+        if Atuple[i] != Btuple[i]:
+            compare = False
+    return compare
 
 def rotation_matrice(matrice):
     lignes = len(matrice)
