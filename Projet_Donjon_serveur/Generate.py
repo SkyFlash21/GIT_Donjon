@@ -104,7 +104,7 @@ def Generate(Donjon,nbr_escalier):
                                 is_hall_generated = True
                             historique.append(Donjon.matrices[iy].copy())
                             break
-
+    # Vérification que toutes les salles on leurs connecteur d'utilisé.
 
 
     return Donjon
