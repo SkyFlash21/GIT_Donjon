@@ -76,7 +76,7 @@ def Generate(Donjon,nbr_escalier):
                         for posz in range(rotated_shape[2]):
                             if valide == False : break
                             # Test de superposition
-                            if not Donjon.matrices[(position[0]+posy,position[1]+posx,position[2]+posz)] + selected_room.matrice[posy,posx,posz] in [0,1,5]:
+                            if not Donjon.matrices[(position[0]+posy,position[1]+posx,position[2]+posz)] + selected_room.matrice[posy,posx,posz] in [0,1,3,5]:
                                 valide = False
 
                             # Test d'accessibilité des connecteurs

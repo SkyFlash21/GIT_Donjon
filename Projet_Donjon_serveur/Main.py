@@ -25,10 +25,10 @@ while True:
     Instance = Donjon(Taille_Matrice=(2,20,20),Nombre_de_Salle=(10,20))
 
     # Ajout des salles au donjon
-    Instance.Room_Type["hall"].append(RoomType("debug_hall_1", "Salle de test",np.array([[[1,5,1], [5,1,5], [1,5,1]]]),filename = None))
+    Instance.Room_Type["hall"].append(RoomType("debug_hall_1", "Salle de test",np.array([[[1,5,1], [5,3,5], [1,5,1]]]),filename = None))
     Instance.Room_Type["2_etage"].append(RoomType("debug_escalier_2", "Salle de test",np.array([[[1,0], [1,1], [1,5], [1,1]],[[1,0], [5,1], [1,1], [1,1]]]),filename = None))
     Instance.Room_Type["1_etage"].append(RoomType("debug_room_1", "Salle de test",np.array([[[1,1], [1,5], [1,1]]]),filename = None))
-    Instance.Room_Type["1_etage"].append(RoomType("debug_room_3", "Salle de test",np.array([[[1,5,1], [1,1,5], [0,1,1]]]),filename = None))
+    Instance.Room_Type["1_etage"].append(RoomType("debug_room_3", "Salle de test",np.array([[[1,5,1], [1,3,5], [0,1,1]]]),filename = None))
     Instance = Generate(Instance,1)
 
     for etage in range(len(Instance.matrices)):
