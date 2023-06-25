@@ -28,7 +28,7 @@ class Room:
         print(self.rotation)
         original_shape = self.matrice_originale.shape
         matrice = self.matrice_originale
-        if "hall" in self.RoomType.name:
+        if "hall" == self.RoomType.name[-4:]:
             self.position_structure_block = [0,-14,0]
             return
         

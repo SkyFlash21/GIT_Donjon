@@ -6,6 +6,7 @@ from Util import *
 import os
 import sys
 
+theme = "mine"
 def loadRequierement():
     reqFile = "requirement.txt"
     with open(reqFile, "r", encoding="utf-8") as f:
@@ -31,10 +32,25 @@ while Donjon_valide == False:
     Instance = Donjon(Taille_Matrice=(2,20,20),Nombre_de_Salle=(10,20))
 
     # Ajout des salles au donjon
-    Instance.Room_Type["hall"].append(RoomType("debug_hall_1", "Salle de test",np.array([[[1,5,1], [5,3,5], [1,5,1]]]),filename = None))
-    Instance.Room_Type["2_etage"].append(RoomType("debug_escalier_2", "Salle de test",np.array([[[1,0], [1,1], [1,5], [1,1]],[[1,0], [5,1], [1,1], [1,1]]]),filename = None))
-    Instance.Room_Type["1_etage"].append(RoomType("debug_room_1", "Salle de test",np.array([[[1,1], [1,5], [1,1]]]),filename = None))
-    Instance.Room_Type["1_etage"].append(RoomType("debug_room_3", "Salle de test",np.array([[[1,5,1], [1,3,5], [0,1,1]]]),filename = None))
+    if theme == "debug":
+        Instance.Room_Type["hall"].append(RoomType("debug_hall", "Salle de test",np.array([[[1,5,1], [5,3,5], [1,5,1]]])))
+        Instance.Room_Type["2_etage"].append(RoomType("debug_escalier_2", "Salle de test",np.array([[[1,0], [1,1], [1,5], [1,1]],[[1,0], [5,1], [1,1], [1,1]]])))
+        Instance.Room_Type["1_etage"].append(RoomType("debug_room_1", "Salle de test",np.array([[[1,1], [1,5], [1,1]]])))
+        Instance.Room_Type["1_etage"].append(RoomType("debug_room_3", "Salle de test",np.array([[[1,5,1], [1,3,5], [0,1,1]]])))
+        Instance.Room_Type["0110"] = ["0110"]
+        Instance.Room_Type["1111"] = ["1111"]
+        Instance.Room_Type["0111"] = ["0111"]
+        Instance.Room_Type["1100"] = ["1100"]
+    elif theme == "mine":
+        Instance.Room_Type["hall"].append(RoomType("mine_hall", "Salle de test",np.array([[[1,5,1], [5,3,5], [1,5,1]],[[1,1,1], [1,1,1], [1,1,1]]])))
+        Instance.Room_Type["2_etage"].append(RoomType("debug_escalier_2", "Salle de test",np.array([[[1,0], [1,1], [1,5], [1,1]],[[1,0], [5,1], [1,1], [1,1]]])))
+        Instance.Room_Type["1_etage"].append(RoomType("mine_altar", "Salle de test",np.array([[[1,1,1], [1,1,1], [1,5,1]]])))
+        Instance.Room_Type["1_etage"].append(RoomType("mine_flora", "Salle de test",np.array([[[1,1,1], [1,1,1], [1,5,1]]])))
+        Instance.Room_Type["1100"] = ["1100_1_mine","1100_2_mine","1100_3_mine","1100_4_mine","1100_5_mine","1100_6_mine","1100_7_mine","1100_8_mine","1100_9_mine","1100_10_mine"]
+        Instance.Room_Type["0110"] = ["0110_1_mine","0110_2_mine","0110_3_mine","0110_4_mine"]
+        Instance.Room_Type["1111"] = ["1111_1_mine","1111_2_mine"]
+        Instance.Room_Type["0111"] = ["0111"]
+
     Instance = Generate(Instance,1)
     Avant_path = Instance.matrices.copy()
     for etage in range(len(Instance.matrices)):
@@ -46,7 +62,7 @@ while Donjon_valide == False:
                     origin_etage = room
         elif etage == 0:
             for room in Instance.salle_generer[etage].values():
-                if "hall" in room.RoomType.name:
+                if "hall" == room.RoomType.name[-4:]:
                     origin_etage = room
 
         ordered = Instance.Get_Distance_from_center(origin_etage,etage) # Tri des salles en foncion de la distance
@@ -58,7 +74,7 @@ while Donjon_valide == False:
             if tentative_discconnected > 100:
                 break
             if len(disconnected) == 1:
-                if "hall" in disconnected[0].RoomType.name:
+                if "hall" == disconnected[0].RoomType.name[-4:]:
                     break
             for roomA in ordered:
                 if roomA in disconnected :

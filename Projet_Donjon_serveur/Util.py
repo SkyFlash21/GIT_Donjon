@@ -57,7 +57,31 @@ def generate_coordinate_codes(matrix,cord):
     return codes
 
 def clean_list(Donjon):
+    directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
     shape = Donjon.matrices.shape
+    
+    # On retire tout les chemins qui superpose des salles
+    blacklist_chemin = []
+    clean_list_dead_end = []     
+    for etage in Donjon.salle_generer:
+        for pos_2d in etage:
+            room = etage[pos_2d]
+            room_shape = room.matrice.shape
+            for posy in range(room_shape[0]):
+                for posx in range(room_shape[1]):
+                    for posz in range(room_shape[2]):
+                        if Donjon.matrices[room.position[0]+posy,room.position[1]+posx,room.position[2]+posz] == 3 and room.matrice[posy,posx,posz] != 0:
+                            blacklist_chemin.append((room.position[0]+posy,room.position[1]+posx,room.position[2]+posz))
+                        if room.matrice[posy,posx,posz] ==  5:
+                            for i,direction in enumerate(directions):
+                                cord_voisin = (room.position[0]+posy,room.position[1]+posx+direction[0],room.position[2]+posz+direction[1])
+                                if 0<=cord_voisin[1]<shape[1] and 0<=cord_voisin[2]<shape[2]:
+                                    if Donjon.matrices[cord_voisin] == 0 :
+                                        cord_voisin = (cord_voisin[0]*7,(shape[1]-cord_voisin[1])*7,cord_voisin[2]*7)
+                                        clean_list_dead_end.append({"filename":"dead_end","position":cord_voisin,"rotation":0,"origin":(posy,posx,posz)})
+
+
+                                 
     clean_list_salle = []
     for etage in Donjon.salle_generer:
         for pos_2d in etage:
@@ -70,7 +94,6 @@ def clean_list(Donjon):
     # axe X et axe Z
     # (-1,0) -1 sur l'axe X, (1,0) 1 sur l'axe X
     # (0,-1) -1 sur l'axe Z, (0,1) 1 sur l'axe Z
-    directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
     Chemin_L = ["0110","1010","1001","0101"]
     Chemin_X = ["1111"]
     Chemin_T = ["0111","1110","1011","1101"]
@@ -94,27 +117,24 @@ def clean_list(Donjon):
                         for index,type in enumerate(chemin_type):
                             if chemin_code == type:
                                 #correction de la position
-                                position = [posy*7,(shape[1]-posx)*7,posz*7]
-                                if index == 1:
-                                    position[1] += 6
-                                    clean_list_chemin.append({"filename":chemin_type[0],"position":position,"rotation":index,"mirror":False})
-                                elif index == 2:
-                                    position[1] += 6
-                                    position[2] += 6
-                                    clean_list_chemin.append({"filename":chemin_type[0],"position":position,"rotation":index,"mirror":False})
-                                elif index == 3:
-                                    position[2] += 6
-                                    clean_list_chemin.append({"filename":chemin_type[0],"position":position,"rotation":index,"mirror":False})
-                                else:
-                                    clean_list_chemin.append({"filename":chemin_type[0],"position":position,"rotation":0,"mirror":False})
-                                # ajout a la lite
-                                
-    for posy in range(shape[0]):
-        for posx in range(shape[1]):
-            for posz in range(shape[2]):
-                if Donjon.matrices[(posy,posx,posz)] == 3:                            
+
+                                if (posy,posx,posz) not in blacklist_chemin:
+                                    position = [posy*7,(shape[1]-posx)*7,posz*7]
+                                    if index == 1:
+                                        position[1] += 6
+                                        clean_list_chemin.append({"filename":random.choice(Donjon.Room_Type[chemin_type[0]]),"position":position,"rotation":index,"mirror":False})
+                                    elif index == 2:
+                                        position[1] += 6
+                                        position[2] += 6
+                                        clean_list_chemin.append({"filename":random.choice(Donjon.Room_Type[chemin_type[0]]),"position":position,"rotation":index,"mirror":False})
+                                    elif index == 3:
+                                        position[2] += 6
+                                        clean_list_chemin.append({"filename":random.choice(Donjon.Room_Type[chemin_type[0]]),"position":position,"rotation":index,"mirror":False})
+                                    else:
+                                        clean_list_chemin.append({"filename":random.choice(Donjon.Room_Type[chemin_type[0]]),"position":position,"rotation":0,"mirror":False})
+                                    # ajout a la lite
     
-    return json.dumps(clean_list_chemin + clean_list_salle)
+    return json.dumps(clean_list_salle + clean_list_chemin + clean_list_dead_end)
 
 def Compare_tuple(Atuple,Btuple):
     compare = True

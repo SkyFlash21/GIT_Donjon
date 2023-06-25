@@ -43,7 +43,7 @@ def Generate(Donjon,nbr_escalier):
             # Définition de la rotation de la salle
             
             selected_room.Rotate_Room(selected_room.rotation)
-            if selected_room.RoomType.name == "debug_hall_1":
+            if selected_room.RoomType.name[-4:] == "hall":
                 selected_room.rotation = 0
 
             """ A REFAIRE
