@@ -12,5 +12,8 @@ class RoomType:
     
     def GenerateRoom(self):
         # On crée la nouvelle salles et on lui passe les arguments de positions et de type
-        room = Room(self,random.randint(0,4),False)
+        if self.name == "debug_hall_1":
+            room = Room(self,0,False)
+        else:
+            room = Room(self,random.randint(0,3),False)
         return room

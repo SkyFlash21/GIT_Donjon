@@ -31,19 +31,49 @@ def convert_to_tuples(paths):
         converted_paths.append(tuple(converted_path))
     return converted_paths
 
+def generate_coordinate_codes(matrix,cord):
+    codes = {}
+    rows = len(matrix)
+    cols = len(matrix[0])
+
+    for i in range(rows):
+        for j in range(cols):
+            if matrix[i][j] != 3:
+                continue
+
+            adjacent_count = 0
+            for dx in range(-1, 2):
+                for dy in range(-1, 2):
+                    if dx == 0 and dy == 0:
+                        continue  # Skip the current coordinate
+                    x = i + dx
+                    y = j + dy
+                    if 0 <= x < rows and 0 <= y < cols and matrix[x][y] == 3:
+                        adjacent_count += 1
+
+            code = format(adjacent_count, '04b')  # Convert the count to binary with 4 digits
+            codes[(i, j)] = code
+
+    return codes
+
 def clean_list(Donjon):
+    shape = Donjon.matrices.shape
     clean_list_salle = []
     for etage in Donjon.salle_generer:
         for pos_2d in etage:
             salle = etage[pos_2d]
-            clean_list_salle.append({"filename":salle["filename"],"position":salle["position"],"rotation":salle["rotation"],"mirror":salle["mirror"]})
+            salle.position = [salle.position[0]*7,(shape[1]-salle.position[1])*7,salle.position[2]*7]
+            salle.position = [salle.position[0]+salle.position_structure_block[0],salle.position[1]+salle.position_structure_block[1],salle.position[2]+salle.position_structure_block[2]]
+            clean_list_salle.append({"filename":salle.RoomType.filename,"position":salle.position,"rotation":salle.rotation,"mirror":salle.miror})
 
     clean_list_chemin = []
-    shape = Donjon.matrices.shape
+    # axe X et axe Z
+    # (-1,0) -1 sur l'axe X, (1,0) 1 sur l'axe X
+    # (0,-1) -1 sur l'axe Z, (0,1) 1 sur l'axe Z
     directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
-    Chemin_L = ["1010","1001","0101","0110"]
+    Chemin_L = ["0110","1010","1001","0101"]
     Chemin_X = ["1111"]
-    Chemin_T = ["1011","1110","0111","1101"]
+    Chemin_T = ["0111","1110","1011","1101"]
     Chemin_I = ["1100","0011"]
     possibilite = [Chemin_L,Chemin_X,Chemin_T,Chemin_I]
     for posy in range(shape[0]):
@@ -54,16 +84,37 @@ def clean_list(Donjon):
                     for i,direction in enumerate(directions):
                         cord_voisin = (posy,posx+direction[0],posz+direction[1])
                         if 0<=cord_voisin[1]<shape[1] and 0<=cord_voisin[2]<shape[2]:
-                            if Donjon.matrices[cord_voisin] == 3 or Donjon.matrices[cord_voisin] == 5 or Donjon.matrices[cord_voisin] == 4:
+                            if Donjon.matrices[cord_voisin] == 3 :
                                 chemin_code+= "1"
                             else:
                                 chemin_code+= "0"
                         else:
                             chemin_code+= "0"
                     for chemin_type in possibilite:
-                        if chemin_code in chemin_type:
-                            clean_list_chemin.append({"filename":chemin_code,"position":[posy,posx,posz],"rotation":chemin_type.index(chemin_code),"mirror":False})
-    return json.dumps(clean_list_salle + clean_list_chemin)
+                        for index,type in enumerate(chemin_type):
+                            if chemin_code == type:
+                                #correction de la position
+                                position = [posy*7,(shape[1]-posx)*7,posz*7]
+                                if index == 1:
+                                    position[1] += 6
+                                    clean_list_chemin.append({"filename":chemin_type[0],"position":position,"rotation":index,"mirror":False})
+                                elif index == 2:
+                                    position[1] += 6
+                                    position[2] += 6
+                                    clean_list_chemin.append({"filename":chemin_type[0],"position":position,"rotation":index,"mirror":False})
+                                elif index == 3:
+                                    position[2] += 6
+                                    clean_list_chemin.append({"filename":chemin_type[0],"position":position,"rotation":index,"mirror":False})
+                                else:
+                                    clean_list_chemin.append({"filename":chemin_type[0],"position":position,"rotation":0,"mirror":False})
+                                # ajout a la lite
+                                
+    for posy in range(shape[0]):
+        for posx in range(shape[1]):
+            for posz in range(shape[2]):
+                if Donjon.matrices[(posy,posx,posz)] == 3:                            
+    
+    return json.dumps(clean_list_chemin + clean_list_salle)
 
 def Compare_tuple(Atuple,Btuple):
     compare = True

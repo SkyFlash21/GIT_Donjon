@@ -14,9 +14,11 @@ class Donjon:
     def Get_disconnected_room(self,etage):
         disconnected_room_list = []
         for room in self.salle_generer[etage].values():
-            for connector in room.connecteur_global[0]:
-                if connector[0] == etage:
-                    disconnected_room_list.append(room)
+            for stage in range(len(room.connecteur_global)):
+                for connector in room.connecteur_global[0]:
+                    if connector[0] == etage+stage:
+                        disconnected_room_list.append(room)
+
         return disconnected_room_list
     
     def Get_nearest_connected_room(self,origin_room):
@@ -57,7 +59,7 @@ class Donjon:
         Bindex = 0
         if len(roomB.connecteur_global[0]) == 0:
             Bindex = 1
-        
+
         distance = None
         selected_connector = []
         for Aconnecteur in roomA.connecteur_global[Aindex]:
@@ -71,4 +73,3 @@ class Donjon:
             return Aindex,Bindex,selected_connector
         else:
             return None,None,None
-        

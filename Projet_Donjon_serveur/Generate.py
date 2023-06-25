@@ -39,22 +39,12 @@ def Generate(Donjon,nbr_escalier):
                 else:
                     selected_room = random.choice(Donjon.Room_Type["1_etage"]).GenerateRoom()
 
-            selected_room_shape = selected_room.matrice.shape
             
             # Définition de la rotation de la salle
-            if selected_room.rotation != 0:
-                # Pour chaque étage de la salle
-                matrices_etage = []
-                for i,stage in enumerate(selected_room.matrice_originale):
-                    matrice_rotated = selected_room.matrice_originale[i]
-                    for j in range(0,selected_room.rotation):
-                        matrice_rotated = Util.rotation_matrice(matrice_rotated)
-                    matrices_etage.append(matrice_rotated)
-
-                rotated_shape = matrices_etage[0].shape
-                selected_room.matrice = np.zeros((selected_room_shape[0],rotated_shape[0],rotated_shape[1]), dtype=int)
-                for i,etage in enumerate(matrices_etage):
-                    selected_room.matrice[i] = matrices_etage[i]
+            
+            selected_room.Rotate_Room(selected_room.rotation)
+            if selected_room.RoomType.name == "debug_hall_1":
+                selected_room.rotation = 0
 
             """ A REFAIRE
                 # Définition du fait que la salle soit en miroir ou non
@@ -62,13 +52,11 @@ def Generate(Donjon,nbr_escalier):
                     for i,stage in enumerate(selected_room.matrice):
                         selected_room.matrice[i] = np.flip(selected_room.matrice[i], axis=1)
             """
-            
             rotated_shape = selected_room.matrice.shape
             for tentative in range(50):
                 direction = [(1,0),(-1,0),(0,1),(0,-1)]
                 valide = True
                 position = (iy,random.randint(0,global_shape[1]-rotated_shape[1]),random.randint(0,global_shape[2]-rotated_shape[2]))
-
                 for posy in range(rotated_shape[0]):
                     if valide == False : break
                     for posx in range(rotated_shape[1]):
@@ -90,7 +78,6 @@ def Generate(Donjon,nbr_escalier):
                 # Vérification que on bouche pas un connecteur
 
                 if valide:
-                    
                     rotated_shape = selected_room.matrice.shape
                     matrice_copy = Donjon.matrices.copy()
                     matrice_copy[position[0]:position[0]+rotated_shape[0],position[1]:position[1]+rotated_shape[1],position[2]:position[2]+rotated_shape[2]] = selected_room.matrice
@@ -104,7 +91,5 @@ def Generate(Donjon,nbr_escalier):
                                 is_hall_generated = True
                             historique.append(Donjon.matrices[iy].copy())
                             break
-    # Vérification que toutes les salles on leurs connecteur d'utilisé.
-
 
     return Donjon
