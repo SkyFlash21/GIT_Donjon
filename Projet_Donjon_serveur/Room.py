@@ -25,7 +25,6 @@ class Room:
             self.connecteur_global[0].append((pos[0],pos[1],pos[2]))
 
     def Rotate_Room(self, angle=None):
-        print(self.rotation)
         original_shape = self.matrice_originale.shape
         matrice = self.matrice_originale
         if "hall" == self.RoomType.name[-4:]:
