@@ -202,6 +202,7 @@ class Donjon:
                                 if is_hall_generated == False:
                                     is_hall_generated = True
                                 break
+
         return Donjon
     
     def generate_json(self):

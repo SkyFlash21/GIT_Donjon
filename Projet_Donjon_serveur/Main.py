@@ -59,4 +59,3 @@ def Generate_dungeon(size,nombre_salle,theme):
         else:
             del Instance
 
-print(Generate_dungeon((2,20,20),(10,20),"debug"))
