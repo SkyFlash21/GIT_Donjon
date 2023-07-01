@@ -1,18 +1,17 @@
 import numpy as np
-import math
-import Util
 
 class Room:
-    def __init__(self, RoomType,rotation,miror):
+    def __init__(self, RoomType):
         self.RoomType = RoomType 
-        self.position = (0,0,0)
-        self.rotation = rotation
-        self.miror = False
+        self.position = None
+        self.rotation = None
+        self.mirror = None
         self.matrice_originale = RoomType.matrice
-        self.matrice = RoomType.matrice
-        self.connecteur_global = [[],[]]
-        self.position_structure_block = (0,0,0)
+        self.matrice = RoomType.matrice # Copie de la matrice 
+        self.connecteur_global = [[],[]] # Liste des connecteurs non utilisé et non utilisé
+        self.position_structure_block = (0,0,0) # Position du stuctrure block ("réferentielle unitaire et non x7")
 
+        # Liste des salles connecter avec succès et liste des salles échoué (et donc blacklist)
         self.salle_connecter = []
         self.failed = []
     
@@ -24,14 +23,13 @@ class Room:
                 pos[i] = connecteur[i] + self.position[i]
             self.connecteur_global[0].append((pos[0],pos[1],pos[2]))
 
-    def Rotate_Room(self, angle=None):
+    def Rotate_Miror_Room(self, angle=None,miror=None):
         original_shape = self.matrice_originale.shape
         matrice = self.matrice_originale
         if "hall" == self.RoomType.name[-4:]:
             self.position_structure_block = [0,-14,0]
             return
         
-        # valide
         if angle == 0:
             self.position_structure_block = [0,(-original_shape[1]*7)+7,0]
             self.matrice = matrice
@@ -55,13 +53,11 @@ class Room:
             self.position_structure_block = [0,(-original_shape[2]*7)+7,original_shape[1]*7-1]
             self.rotation = 3
         
-
     def GetRoom(self):
         return {"name":self.RoomType.name,"filename":self.RoomType.filename,"position":self.position,"local_position":(self.position[1],self.position[2]),"rotation":self.rotation,"mirror":self.miror,"matrice":self.matrice}
     
     def Get_nearest_connected_room(self,list):
         list = list.copy()
-        ordered_list = []
         for room in list.value():
             print(room.position)
 

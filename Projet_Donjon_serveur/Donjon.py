@@ -5,21 +5,20 @@ import json
 
 class Donjon:
     def __init__(self,Taille_Matrice,Nombre_de_Salle):
-        self.matrices = np.zeros((Taille_Matrice[0], Taille_Matrice[1], Taille_Matrice[2])).astype(int) # Matrice du donjon, c'est ici que les salles vérifieront si elle peuvent se placer sans superposer une autre salle.
-        self.taille = Taille_Matrice # Taille du donjon 
-        self.Room_Type = {"1_etage":[],"2_etage":[],"hall":[]}
-        self.salle_generer = [] # Liste 
+        self.matrices = np.zeros((Taille_Matrice[0]+1, Taille_Matrice[1], Taille_Matrice[2])).astype(int) # Matrice du donjon, c'est ici que les salles vérifieront si elle peuvent se placer sans superposer une autre salle.
+        self.taille = Taille_Matrice # Taille du donjon
+        self.Room_Type = {0:[],1:[],2:[],3:[],4:[],5:[]} # Liste trian les salles en fonction de leur caractéristique
+        self.salle_generer = [] # Liste des salles géneré et validé
         self.json_data = None # Data envoyé au serveur [non fini]
         self.Nombre_de_Salle = Nombre_de_Salle # Nombre de salle voulu pour le donjon au minimum et au maximum (tuple)
-        self.time = None
+        self.time = None # Mise en mémoire du temps d'éxecution de l'algo
 
     def Get_disconnected_room(self,etage):
         disconnected_room_list = []
         for room in self.salle_generer[etage].values():
-            for stage in range(len(room.connecteur_global)):
-                for connector in room.connecteur_global[0]:
-                    if connector[0] == etage+stage:
-                        disconnected_room_list.append(room)
+            for connector in room.connecteur_global[0]:
+                if connector[0] == etage:
+                    disconnected_room_list.append(room)
 
         return disconnected_room_list
     
@@ -28,10 +27,6 @@ class Donjon:
         nearest_connected_room = None
         for room in self.salle_generer[origin_room.position[0]].values():
             temp_distance = math.dist(origin_room.position,room.position)
-            # Si la distance n'est pas définie
-            # Si la pièce est plus proches :
-                # Si la piece est connecté
-                # Si la piece est un hall ou un escalier qui a comme origine l'étage inférieur
             if distance == None or (temp_distance < distance and (len(room.connecteur_global[1]) != 0 or ( ("hall" == room.RoomType.name[-4:] and len(room.connecteur_global[0]) != 0) or ("escalier" in room.RoomType.name and room.position[0] == (origin_room.position[0]-1) ) ))):
                 if room not in origin_room.salle_connecter and origin_room != room and room not in origin_room.failed:
                     distance = temp_distance
@@ -53,20 +48,18 @@ class Donjon:
     
     def is_dungeon_valid(self):
         Donjon_valide = True
-        for etage in range(len(self.matrices)):
-            # On trouve l'origine de l'étage (salle qui fait escalier entre deux étage)
+        for etage in range(self.taille[0]):
             origin_etage = None
             if etage != 0:
                 for room in self.salle_generer[etage-1].values():
-                    if len(room.matrice) == 2:
+                    if room.RoomType.type == "escalier":
                         origin_etage = room
             elif etage == 0:
                 for room in self.salle_generer[etage].values():
-                    if "hall" == room.RoomType.name[-4:]:
+                    if room.RoomType.type == "hall":
                         origin_etage = room
-
             ordered = self.Get_Distance_from_center(origin_etage,etage) # Tri des salles en foncion de la distance
-
+            
             tentative_discconnected = 0
             disconnected = self.Get_disconnected_room(etage)
             while disconnected != []:
@@ -74,7 +67,7 @@ class Donjon:
                 if tentative_discconnected > 100:
                     break
                 if len(disconnected) == 1:
-                    if "hall" == disconnected[0].RoomType.name[-4:]:
+                    if "hall" == disconnected[0].RoomType.type:
                         break
                 for roomA in ordered:
                     if roomA in disconnected :
@@ -142,14 +135,12 @@ class Donjon:
         else:
             return None,None,None
     
-    def Generate(self,stage_escalier):
+    def Generate(self):
         is_hall_generated = False
 
-        for iy,y in enumerate(self.matrices):
-            historique = []
+        for iy in range(self.taille[0]):
             self.salle_generer.append({})
             global_shape = self.matrices.shape
-
 
             # Placement des salles dans la matrices
             nombre_de_salle = random.randint(self.Nombre_de_Salle[0],self.Nombre_de_Salle[1])
@@ -157,37 +148,32 @@ class Donjon:
 
                 # Géneration du hall ou des escaliers
                 if is_hall_generated == False:
-                    selected_room = random.choice(self.Room_Type["hall"]).GenerateRoom()
+                    selected_room = random.choice(self.Room_Type[0]).GenerateRoom()
                 else:
-                    if stage_escalier > 0 and iy != len(self.matrices)-1:
-                        selected_room = random.choice(self.Room_Type["2_etage"]).GenerateRoom()
-                        stage_escalier-=1
+                    if (iy==0 and len(self.salle_generer[iy]) == 1) or (iy!=0 and len(self.salle_generer[iy]) == 0 and self.taille[0]-1 != iy):
+                        selected_room = random.choice(self.Room_Type[2]).GenerateRoom()
                     else:
-                        selected_room = random.choice(self.Room_Type["1_etage"]).GenerateRoom()
+                        selected_room = random.choice(self.Room_Type[1]).GenerateRoom()
 
                 
                 # Définition de la rotation de la salle
-                
-                selected_room.Rotate_Room(selected_room.rotation)
-                if selected_room.RoomType.name[-4:] == "hall":
+                if selected_room.RoomType.type == "hall":
                     selected_room.rotation = 0
-
-                """ A REFAIRE
-                    # Définition du fait que la salle soit en miroir ou non
-                    if selected_room.miror:
-                        for i,stage in enumerate(selected_room.matrice):
-                            selected_room.matrice[i] = np.flip(selected_room.matrice[i], axis=1)
-                """
-                rotated_shape = selected_room.matrice.shape
+                    selected_room.mirror = 0
+                    selected_room.position_structure_block = (0,-14,0)
+                else:
+                    selected_room.Rotate_Miror_Room(random.randint(0,3),random.randint(0,2))
+                
+                room_shape = selected_room.matrice.shape
                 for tentative in range(50):
-                    direction = [(1,0),(-1,0),(0,1),(0,-1)]
                     valide = True
-                    position = (iy,random.randint(0,global_shape[1]-rotated_shape[1]),random.randint(0,global_shape[2]-rotated_shape[2]))
-                    for posy in range(rotated_shape[0]):
+
+                    position = (iy,random.randint(0,global_shape[1]-room_shape[1]),random.randint(0,global_shape[2]-room_shape[2]))
+                    for posy in range(room_shape[0]):
                         if valide == False : break
-                        for posx in range(rotated_shape[1]):
+                        for posx in range(room_shape[1]):
                             if valide == False : break
-                            for posz in range(rotated_shape[2]):
+                            for posz in range(room_shape[2]):
                                 if valide == False : break
                                 # Test de superposition
                                 if not self.matrices[(position[0]+posy,position[1]+posx,position[2]+posz)] + selected_room.matrice[posy,posx,posz] in [0,1,3,5]:
@@ -204,18 +190,17 @@ class Donjon:
                     # Vérification que on bouche pas un connecteur
 
                     if valide:
-                        rotated_shape = selected_room.matrice.shape
+                        room_shape = selected_room.matrice.shape
                         matrice_copy = self.matrices.copy()
-                        matrice_copy[position[0]:position[0]+rotated_shape[0],position[1]:position[1]+rotated_shape[1],position[2]:position[2]+rotated_shape[2]] = selected_room.matrice
+                        matrice_copy[position[0]:position[0]+room_shape[0],position[1]:position[1]+room_shape[1],position[2]:position[2]+room_shape[2]] = selected_room.matrice
                         if Outil_generation.verif_room_connector(matrice_copy):
-                            if 5 not in self.matrices[position[0]:position[0]+rotated_shape[0],max(0,position[1]-1):min(global_shape[1],position[1]+rotated_shape[1]+2),max(0,position[2]-1):min(global_shape[2],position[2]+rotated_shape[2]+2)]:
+                            if 5 not in self.matrices[position[0]:position[0]+room_shape[0],max(0,position[1]-1):min(global_shape[1],position[1]+room_shape[1]+2),max(0,position[2]-1):min(global_shape[2],position[2]+room_shape[2]+2)]:
                                 selected_room.position = position
                                 selected_room.Update_connecteur_global()
                                 self.salle_generer[iy][selected_room.position] = selected_room
-                                self.matrices[position[0]:position[0]+rotated_shape[0],position[1]:position[1]+rotated_shape[1],position[2]:position[2]+rotated_shape[2]] = selected_room.matrice
+                                self.matrices[position[0]:position[0]+room_shape[0],position[1]:position[1]+room_shape[1],position[2]:position[2]+room_shape[2]] = selected_room.matrice
                                 if is_hall_generated == False:
                                     is_hall_generated = True
-                                historique.append(self.matrices[iy].copy())
                                 break
         return Donjon
     
@@ -251,7 +236,7 @@ class Donjon:
                 salle = etage[pos_2d]
                 salle.position = [salle.position[0]*7,(shape[1]-salle.position[1])*7,salle.position[2]*7]
                 salle.position = [salle.position[0]+salle.position_structure_block[0],salle.position[1]+salle.position_structure_block[1],salle.position[2]+salle.position_structure_block[2]]
-                clean_list_salle.append({"filename":salle.RoomType.filename,"position":salle.position,"rotation":salle.rotation,"mirror":salle.miror})
+                clean_list_salle.append({"filename":salle.RoomType.filename,"position":salle.position,"rotation":salle.rotation})
 
         clean_list_chemin = []
         # axe X et axe Z
