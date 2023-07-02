@@ -1,85 +1,164 @@
 import jpysocket
 import socket
+import threading
 import time
-from _thread import *
-ServerSideSocket = socket.socket()
-host = "127.0.0.1"
-port = 12345
-Client_list = []
-HEADERSIZE = 10
+import struct
+from serveur import *
+from database import * 
+import re
 
-# Section relative au test des connections (envoie des get_alive packet)
-def check_all_client(Client_list): 
-    while True:
-        if len(Client_list) != 0:
-            print(f"[Thread] Envoie du packet is_alive à {len(Client_list)} clients")
-            for client_tuple in Client_list:
-                client = client_tuple[0]
-                try:
-                    client.send(jpysocket.jpyencode("checka"))
-                except error:
-                    print(f"Un client à été déconnecté brutalement.")
-                    Client_list.remove(client)
-        time.sleep(5)
+HEADER_SIZE = 4
+Liste_Serveur = {}
+database = None
 
-# Section relative à l'envoie et la reception des messages (modification pour abaisser le buffer)
-def send_message(connection,message):
-    message = f"{len(message):<{HEADERSIZE}}"+message
+def connect_database():
+    # Exemple d'utilisation des fonctions
+
+    # Connexion a la base de donnees
+    conn = connecter_base_de_donnees()
+    log("Connexion a la base de donnees etablie.")
+
+    # Creation des tables
+    creer_tables(conn)
+    database = conn
+
+"""
+    # Ajouter un joueur
+    joueur1_id = ajouter_joueur(conn, "Joueur1", "uuid1", "Serveur1")
+
+    # Ajouter des mesures pour le joueur
+    ajouter_mesure(conn, joueur1_id, "Donnees1")
+    ajouter_mesure(conn, joueur1_id, "Donnees2")
+    ajouter_mesure(conn, joueur1_id, "Donnees3")
+
+    # Consulter la mesure la plus recente pour le joueur
+    derniere_mesure_joueur1 = consulter_derniere_mesure(conn, joueur1_id)
+    if derniere_mesure_joueur1:
+        log("Derniere mesure pour le joueur 1 :")
+        log(str(derniere_mesure_joueur1))
+    else:
+        log("Aucune mesure trouvee pour le joueur 1.")
+
+    # Sauvegarder la base de donnees
+    sauvegarder_base_de_donnees(conn)
+
+    # Fermer la connexion a la base de donnees
+    fermer_connexion(conn)
+"""
+def receive_message(connection):
+    # Recevoir la taille du message à recevoir
+    msg_size_data = b""
+    while len(msg_size_data) < HEADER_SIZE:
+        chunk = connection.recv(HEADER_SIZE - len(msg_size_data))
+        if not chunk:
+            return None
+        msg_size_data += chunk
+    msg_size = struct.unpack("!I", msg_size_data)[0]
+
+    # Recevoir le message complet
+    received_data = b""
+    while len(received_data) < msg_size:
+        chunk = connection.recv(msg_size - len(received_data))
+        if not chunk:
+            break
+        received_data += chunk
+    return received_data
+
+def send_message(connection, message):
+    # Envoyer la taille du message à envoyer
+    msg_size = str(len(message)).zfill(HEADER_SIZE)
+    connection.send(jpysocket.jpyencode(msg_size))
+
+    # Envoyer le message complet
+    print(f"Envoie du message {message} de taille {msg_size}")
     connection.send(jpysocket.jpyencode(message))
 
-# Section relative au client
-def receive_message(connection):
-    # Recevoir l'en-tête contenant la taille du message
-    header_size = 10  # Taille fixe de l'en-tête
-    try:
-        header = connection.recv(header_size)
-        message_size = int(jpysocket.jpydecode(header).strip())  # Convertir l'en-tête en entier
-        print(f"header : [{jpysocket.jpydecode(header)}], message size: [{message_size}]")
+def gerer_connexion(connection, address, uuid):
+    # Gérer la connexion d'un client
+    print("Nouvelle connexion établie avec", address)
 
-        # Recevoir le corps du message en plusieurs morceaux
-        message = b""
-        chunk_size = 4096  # Taille maximale fixe pour chaque morceau
-        print(len(message) < message_size,len(message),message_size)
-        while len(message) < message_size:
-            remaining_bytes = message_size - len(message) + 2
-            chunk = connection.recv(min(chunk_size, remaining_bytes))
-            message += chunk
-            print(f"Réception: [{jpysocket.jpydecode(chunk)}] {len(message)} {message_size}")
-        print(jpysocket.jpydecode(message))
-        return jpysocket.jpydecode(message)
+    # Envoyer un message de bienvenue au client
+    send_message(connection, "Bienvenue ! Vous etes connecte au serveur Python.")
+    send_message(connection, "Avant le debut de la loop")
+
+    try:
+        send_message(connection, "Debut de la loop")
+        while True:
+            # Recevoir les données du client
+            msgrecv = receive_message(connection)
+            if not msgrecv:
+                # Si aucune donnée n'est reçue, la connexion est fermée
+                connection.close()
+                print(f"Aucunne donnée recue de {address}, fermeture de la connection")
+                del Liste_Serveur[uuid]
+                break
+
+            # Décoder le message reçu
+            msgrecv = str(msgrecv.decode())
+            matches = re.findall(r'\[(.*?)\]', msgrecv)
+            if matches[0] == "Data_Joueur":
+                print("Mise à jour de joueur recu.")
+            else:
+                print(msgrecv)
+
+            # Envoyer une réponse au client
+            send_message(connection, f"Message reçu : {msgrecv}")
     except:
-        return "close_connection"
+        # Fermer la connexion lorsque la boucle est terminée
+        connection.close()
+        print(f"Connexion fermée avec {address} à cause d'une erreur.")
 
-def client_handler(connection,address,Client_list):
-    send_message(connection,'[Helios] Connection réussi.')
+        # Supprimer la connexion du dictionnaire
+        del Liste_Serveur[uuid]
+
+def verifier_connexions():
     while True:
-        message = receive_message(connection)
-        if message == 'close_connection':
-            print("Fermeture de la connection")
-            Client_list.remove((connection,address))
-            break
-        reply = f'Server: {message}'
-        send_message(connection,reply)
-    connection.close()
+        # Vérifier l'état des connexions toutes les 5 secondes
+        time.sleep(60)
+        try:
+            if len(Liste_Serveur) != 0:
+                print("Vérification des connexions en cours...")
+                for uuid, serveur in Liste_Serveur.items():
+                    try:
+                        send_message(serveur.connection, "getalive")
+                    except:
+                        print("La connexion avec ", uuid, serveur.addresse, "a été perdue.")
+                        # Fermer la connexion et la supprimer du dictionnaire
+                        serveur.connection.close()
+                        del Liste_Serveur[serveur.uuid]
+        except:
+            print("Le thread de vérification des connections à rencontré une erreur.")
 
-# Section relative au serveur
-def accept_connections(ServerSocket):
-    Client, address = ServerSocket.accept()
-    print('Connection accepté: ' + address[0] + ':' + str(address[1]))
-    start_new_thread(client_handler, (Client,address,Client_list, ))
-    Client_list.append((Client,address))
+def main():
+    host = '127.0.0.1'  # Nom de l'hôte
+    port = 12345  # Numéro de port
+    s = socket.socket()  # Créer une socket
+    s.bind((host, port))  # Lier le port et l'hôte
+    s.listen(5)  # La socket est en écoute
+    print("La socket est en écoute.")
+    connect_database()
+    print("La base de donné est démaré.")
 
-def start_server(host, port):
-    ServerSocket = socket.socket()
-    try:
-        ServerSocket.bind((host, port))
-    except socket.error as e:
-        print(str(e))
+    # Démarrer le thread de vérification des connexions
+    thread_verification = threading.Thread(target=verifier_connexions)
+    thread_verification.start()
 
-    print(f'Le serveur à été démmaré sur le port {port}...')
-    ServerSocket.listen()
-    start_new_thread(check_all_client, (Client_list, ))
     while True:
-        accept_connections(ServerSocket)
+        # Accepter une nouvelle connexion
+        connection, address = s.accept()
+        print("Connecté à", address)
 
-start_server(host, port)
+        # Ajouter la connexion au dictionnaire
+        newserver = Serveur(str(connection.recv(32).decode()), address, connection)
+        Liste_Serveur[newserver.uuid] = newserver
+
+        # Gérer la connexion du client dans un thread séparé
+        newserver.thread = threading.Thread(target=gerer_connexion, args=(newserver.connection, newserver.addresse, newserver.uuid))
+        newserver.thread.start()
+
+    # Fermer la socket lorsque la boucle est terminée
+    s.close()
+    print("Connexion fermée.")
+
+if __name__ == '__main__':
+    main()

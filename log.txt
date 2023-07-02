@@ -1,0 +1,21 @@
+2023-07-02 04:36:36 - La table joueur n'existe pas, ou une autre erreur a ete rencontre.
+2023-07-02 04:36:36 - Connexion a la base de donnees etablie.
+2023-07-02 04:36:36 - Table 'Joueurs' creee dans la base de donnees.
+2023-07-02 04:36:36 - Table 'DonneesJeu' creee dans la base de donnees.
+2023-07-02 04:36:36 - Table 'MesuresJoueur' creee dans la base de donnees.
+2023-07-02 04:48:51 - Connexion a la base de donnees etablie.
+2023-07-02 04:52:12 - Connexion a la base de donnees etablie.
+2023-07-02 04:52:32 - Connexion a la base de donnees etablie.
+2023-07-02 04:53:50 - Connexion a la base de donnees etablie.
+2023-07-02 04:54:43 - Connexion a la base de donnees etablie.
+2023-07-02 04:55:57 - Connexion a la base de donnees etablie.
+2023-07-02 04:56:50 - Connexion a la base de donnees etablie.
+2023-07-02 04:58:37 - Connexion a la base de donnees etablie.
+2023-07-02 04:59:11 - Connexion a la base de donnees etablie.
+2023-07-02 05:02:47 - Connexion a la base de donnees etablie.
+2023-07-02 05:06:06 - Connexion a la base de donnees etablie.
+2023-07-02 05:06:36 - Connexion a la base de donnees etablie.
+2023-07-02 05:06:51 - Connexion a la base de donnees etablie.
+2023-07-02 05:08:25 - Connexion a la base de donnees etablie.
+2023-07-02 05:11:37 - Connexion a la base de donnees etablie.
+2023-07-02 05:26:19 - Connexion a la base de donnees etablie.
