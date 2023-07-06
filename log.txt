@@ -19,3 +19,32 @@
 2023-07-02 05:08:25 - Connexion a la base de donnees etablie.
 2023-07-02 05:11:37 - Connexion a la base de donnees etablie.
 2023-07-02 05:26:19 - Connexion a la base de donnees etablie.
+2023-07-02 12:56:48 - Connexion a la base de donnees etablie.
+2023-07-02 12:59:13 - Connexion a la base de donnees etablie.
+2023-07-02 13:00:24 - Connexion a la base de donnees etablie.
+2023-07-02 13:01:05 - Connexion a la base de donnees etablie.
+2023-07-02 13:01:21 - Connexion a la base de donnees etablie.
+2023-07-02 13:02:34 - Connexion a la base de donnees etablie.
+2023-07-02 13:03:00 - Connexion a la base de donnees etablie.
+2023-07-02 13:04:28 - Connexion a la base de donnees etablie.
+2023-07-02 13:06:09 - Connexion a la base de donnees etablie.
+2023-07-02 13:10:53 - [('127.0.0.1', 52809)]Connexion a la base de donnees etablie.
+2023-07-02 13:11:33 - [('127.0.0.1', 52852)]Connexion a la base de donnees etablie.
+2023-07-02 13:11:35 - Joueur ajoute a la base de donnees. ID du joueur : 1
+2023-07-02 13:11:35 - Mesure ajoutée pour le joueur avec l'ID : 1, ID de mesure : 1
+2023-07-02 13:11:35 - Dernier serveur du joueur avec l'ID 380df991-f603-344c-a090-369bad2a924a modifié : serveur_test
+2023-07-02 13:14:31 - Joueur charge depuis la base de donnees. ID du joueur : 1
+2023-07-02 13:14:31 - [('127.0.0.1', 53024)]Connexion a la base de donnees etablie.
+2023-07-02 13:14:35 - Le joueur existe deja dans la base de donnees.
+2023-07-02 13:14:35 - Mesure ajoutée pour le joueur avec l'ID : 1, ID de mesure : 2
+2023-07-02 13:14:35 - Dernier serveur du joueur avec l'ID 380df991-f603-344c-a090-369bad2a924a modifié : serveur_test
+2023-07-02 13:14:42 - Le joueur existe deja dans la base de donnees.
+2023-07-02 13:14:42 - Mesure ajoutée pour le joueur avec l'ID : 1, ID de mesure : 3
+2023-07-02 13:14:42 - Dernier serveur du joueur avec l'ID 380df991-f603-344c-a090-369bad2a924a modifié : serveur_test
+2023-07-02 14:50:32 - Joueur charge depuis la base de donnees. ID du joueur : 1
+2023-07-02 14:50:32 - [('127.0.0.1', 56426)]Connexion a la base de donnees etablie.
+2023-07-02 14:50:39 - Le joueur existe deja dans la base de donnees.
+2023-07-02 14:50:39 - Mesure ajoutée pour le joueur avec l'ID : 1, ID de mesure : 4
+2023-07-02 14:50:39 - Dernier serveur du joueur avec l'ID 380df991-f603-344c-a090-369bad2a924a modifié : serveur_test
+2023-07-02 14:51:50 - Joueur charge depuis la base de donnees. ID du joueur : 1
+2023-07-02 14:51:50 - [('127.0.0.1', 56451)]Connexion a la base de donnees etablie.
